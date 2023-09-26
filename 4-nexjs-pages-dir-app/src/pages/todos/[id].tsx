@@ -117,7 +117,7 @@ function TodoEditForm({ item }: { item: TodoResponse }) {
     event.preventDefault();
     const response = await fetch(`/api/todos/${item.id}`, {
       method: "PUT",
-      body: JSON.stringify({ title, description }),
+      body: JSON.stringify({ title, description, completed: item.completed }),
       headers: {
         "Content-Type": "application/json",
       },
