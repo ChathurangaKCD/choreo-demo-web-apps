@@ -49,6 +49,7 @@ export const getServerSideProps = (async (context: any) => {
     const pendingCount = todos.filter((t) => !t.completed).length;
     return { props: { todos, error: false, pendingCount } };
   } catch (error) {
+    console.log("getServerSideProps", error);
     return { props: { todos: [], error: true, pendingCount: 0 } };
   }
 }) satisfies GetServerSideProps<TodosPageProps>;

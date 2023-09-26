@@ -34,6 +34,7 @@ export const getServerSideProps = (async (context: any) => {
       },
     };
   } catch (error) {
+    console.log("getServerSideProps", error);
     return {
       props: {
         pendingCount: 0,
