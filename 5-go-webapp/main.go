@@ -24,7 +24,7 @@ func main() {
 	})
 
 	fmt.Println("Server starting on port :8080...")
-	http.ListenAndServe(":8080", customHandler)
+	http.ListenAndServe(":8081", customHandler)
 }
 
 func registerRoutes(mux *http.ServeMux) {
