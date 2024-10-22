@@ -56,7 +56,7 @@ func registerRoutes(mux *http.ServeMux) {
 	})
 }
 
-func generateHTML(title string, r *http.Request, host string) string {
+func generateHTML(title string, r *http.Request) string {
 	return fmt.Sprintf(`
 	<!DOCTYPE html>
 	<html>
@@ -78,5 +78,5 @@ func generateHTML(title string, r *http.Request, host string) string {
 			</ul>
 		</nav>
 	</body>
-	</html>`, title, host, r.RequestURI)
+	</html>`, title, r.Host, r.RequestURI)
 }
