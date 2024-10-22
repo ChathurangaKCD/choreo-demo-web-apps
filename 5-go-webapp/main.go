@@ -84,6 +84,7 @@ func generateHTML(title string, r *http.Request) string {
 		title,
 		r.Host,
 		r.Header.Get("X-Forwarded-Host"),
-		r.Header.Get("X-Forwarded-Proto"), r.RequestURI,
+		r.Header.Get("X-Forwarded-Proto"),
+		r.RequestURI,
 	)
 }
