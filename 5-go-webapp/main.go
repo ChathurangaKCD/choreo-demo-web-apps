@@ -45,11 +45,18 @@ func registerRoutes(mux *http.ServeMux) {
 		http.Redirect(w, r, "/users", http.StatusMovedPermanently)
 	})
 	mux.HandleFunc("/users/absolute-redirect", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, fmt.Sprintf("%s/users", r.Header.Get("Host")), http.StatusMovedPermanently)
+		// Determine the scheme (http or https)
+		scheme := "http"
+		if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+			scheme = "https"
+		}
+		// Construct the absolute URL
+		redirectURL := fmt.Sprintf("%s://%s/users", scheme, r.Host)
+		http.Redirect(w, r, redirectURL, http.StatusMovedPermanently)
 	})
 }
 
-func generateHTML(title string, r *http.Request) string {
+func generateHTML(title string, r *http.Request, host string) string {
 	return fmt.Sprintf(`
 	<!DOCTYPE html>
 	<html>
@@ -57,6 +64,7 @@ func generateHTML(title string, r *http.Request) string {
 		<title>%s</title>
 	</head>
 	<body>
+		<h1>host: %s</h1>
 		<h1>route: %s</h1>
 		<nav>
 			<ul>
@@ -70,5 +78,5 @@ func generateHTML(title string, r *http.Request) string {
 			</ul>
 		</nav>
 	</body>
-	</html>`, title, r.RequestURI)
+	</html>`, title, host, r.RequestURI)
 }
