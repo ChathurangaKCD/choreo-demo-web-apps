@@ -41,8 +41,11 @@ func registerRoutes(mux *http.ServeMux) {
 		fmt.Fprintf(w, generateHTML("user 2", r))
 	})
 	// Adding a redirect from /users/redirect to /users
-	mux.HandleFunc("/users/redirect", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/users/relative-redirect", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/users", http.StatusMovedPermanently)
+	})
+	mux.HandleFunc("/users/absolute-redirect", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, fmt.Sprintf("%s/users", r.Header.Get("Host")), http.StatusMovedPermanently)
 	})
 }
 
@@ -62,7 +65,8 @@ func generateHTML(title string, r *http.Request) string {
 				<li><a href="/users">/users</a></li>
 				<li><a href="/user/1">/user/1</a></li>
 				<li><a href="/user/2">/user/2</a></li>
-				<li><a href="/users/redirect">/users/redirect will redirect to /users</a></li>
+				<li><a href="/users/relative-redirect">/users/relative-redirect will redirect to /users</a></li>
+				<li><a href="/users/absolute-redirect">/users/absolute-redirect will redirect to /users</a></li>
 			</ul>
 		</nav>
 	</body>
