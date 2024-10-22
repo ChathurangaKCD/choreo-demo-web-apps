@@ -65,8 +65,9 @@ func generateHTML(title string, r *http.Request) string {
 	</head>
 	<body>
 		<h1>Host: %s</h1>
+		<h1>X-Forwarded-Host: %s</h1>
 		<h1>X-Forwarded-Proto: %s</h1>
-		<h1>route: %s</h1>
+		<h1>Route: %s</h1>
 		<nav>
 			<ul>
 				<li><a href="/">/</a></li>
@@ -79,5 +80,10 @@ func generateHTML(title string, r *http.Request) string {
 			</ul>
 		</nav>
 	</body>
-	</html>`, title, r.Host, r.Header.Get("X-Forwarded-Host"), r.RequestURI)
+	</html>`,
+		title,
+		r.Host,
+		r.Header.Get("X-Forwarded-Host"),
+		r.Header.Get("X-Forwarded-Proto"), r.RequestURI,
+	)
 }
