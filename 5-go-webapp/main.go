@@ -54,6 +54,16 @@ func registerRoutes(mux *http.ServeMux) {
 		redirectURL := fmt.Sprintf("%s://%s/users", scheme, r.Host)
 		http.Redirect(w, r, redirectURL, http.StatusMovedPermanently)
 	})
+	mux.HandleFunc("/users/absolute-redirect-with-forwaded-host", func(w http.ResponseWriter, r *http.Request) {
+		// Determine the scheme (http or https)
+		scheme := "http"
+		if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+			scheme = "https"
+		}
+		// Construct the absolute URL
+		redirectURL := fmt.Sprintf("%s://%s/users", scheme, r.Header.Get("X-Forwarded-Host"))
+		http.Redirect(w, r, redirectURL, http.StatusMovedPermanently)
+	})
 }
 
 func generateHTML(title string, r *http.Request) string {
@@ -77,6 +87,7 @@ func generateHTML(title string, r *http.Request) string {
 				<li><a href="/user/2">/user/2</a></li>
 				<li><a href="/users/relative-redirect">/users/relative-redirect will redirect to /users</a></li>
 				<li><a href="/users/absolute-redirect">/users/absolute-redirect will redirect to /users</a></li>
+				<li><a href="/users/absolute-redirect-with-forwaded-host">/users/absolute-redirect-with-forwaded-host will redirect to /users</a></li>
 			</ul>
 		</nav>
 	</body>
