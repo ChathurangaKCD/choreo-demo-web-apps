@@ -40,30 +40,25 @@ func registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/user/2", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, generateHTML("user 2", r))
 	})
-	// Adding a redirect from /users/redirect to /users
-	mux.HandleFunc("/users/relative-redirect", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/users", http.StatusMovedPermanently)
-	})
-	mux.HandleFunc("/users/absolute-redirect", func(w http.ResponseWriter, r *http.Request) {
-		// Determine the scheme (http or https)
-		scheme := "http"
-		if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
-			scheme = "https"
-		}
-		// Construct the absolute URL
-		redirectURL := fmt.Sprintf("%s://%s/users", scheme, r.Host)
-		http.Redirect(w, r, redirectURL, http.StatusMovedPermanently)
-	})
-	mux.HandleFunc("/users/absolute-redirect-with-forwaded-host", func(w http.ResponseWriter, r *http.Request) {
-		// Determine the scheme (http or https)
-		scheme := "http"
-		if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
-			scheme = "https"
-		}
-		// Construct the absolute URL
-		redirectURL := fmt.Sprintf("%s://%s/users", scheme, r.Header.Get("X-Forwarded-Host"))
-		http.Redirect(w, r, redirectURL, http.StatusMovedPermanently)
-	})
+	mux.HandleFunc("/upload", handleUpload)
+}
+
+func handleUpload(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	r.ParseMultipartForm(100 << 20) // Set max upload size to 50MB
+	file, handler, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, "Unable to read file", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	fmt.Printf("Uploaded file size: %d bytes\n", handler.Size)
+	fmt.Fprintf(w, "File %s uploaded successfully. Size: %d bytes", handler.Filename, handler.Size)
 }
 
 func generateHTML(title string, r *http.Request) string {
@@ -85,11 +80,14 @@ func generateHTML(title string, r *http.Request) string {
 				<li><a href="/users">/users</a></li>
 				<li><a href="/user/1">/user/1</a></li>
 				<li><a href="/user/2">/user/2</a></li>
-				<li><a href="/users/relative-redirect">/users/relative-redirect will redirect to /users</a></li>
-				<li><a href="/users/absolute-redirect">/users/absolute-redirect will redirect to /users</a></li>
-				<li><a href="/users/absolute-redirect-with-forwaded-host">/users/absolute-redirect-with-forwaded-host will redirect to /users</a></li>
 			</ul>
 		</nav>
+		<h2>Upload a File</h2>
+		<form action="/upload" method="post" enctype="multipart/form-data">
+			<input type="file" name="file" />
+			<br>
+			<input type="submit" value="Upload File (Max: 50MB)" />
+		</form>
 	</body>
 	</html>`,
 		title,
